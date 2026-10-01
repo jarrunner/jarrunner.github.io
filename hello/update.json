@@ -2,9 +2,28 @@
     "format":  1,
     "app":  "io.github.jarrunner:hello",
     "channels":  {
-                     "stable":  "1.0.0"
+                     "stable":  "1.1.0"
                  },
     "releases":  [
+                     {
+                         "version":  "1.1.0",
+                         "released":  "2026-10-01T06:59:21Z",
+                         "exe":  {
+                                     "windows-x86_64":  {
+                                                            "sha256":  "3e61f5c090e8dd53cc00d12ce24a0076b334ff7c4349aee209f3de13222b16f3",
+                                                            "urls":  [
+                                                                         "https://jarrunner.github.io/hello/1.1.0/hello-windows-x86_64.exe"
+                                                                     ]
+                                                        },
+                                     "windows-aarch64":  {
+                                                             "sha256":  "03d73f04ff27fa9c0f473c7e1a772af345c7909e35b804bd640d855cd90a8a8f",
+                                                             "urls":  [
+                                                                          "https://jarrunner.github.io/hello/1.1.0/hello-windows-arm64.exe"
+                                                                      ]
+                                                         }
+                                 },
+                         "notes":  "Prints one more line."
+                     },
                      {
                          "version":  "1.0.0",
                          "released":  "2026-10-01T06:57:34Z",
