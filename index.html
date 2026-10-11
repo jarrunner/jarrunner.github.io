@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>jarrunner: run your Java app like a native program</title>
+<meta name="description" content="jr is a small native launcher for Java apps on Windows and macOS. Your jar gets its own exe or Mac app, finds or downloads Java, starts faster, and updates itself.">
+<link rel="icon" href="jr-icon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="jr-icon-512.png">
+<meta property="og:title" content="jarrunner: run your Java app like a native program">
+<meta property="og:description" content="A small native launcher for Java apps on Windows and macOS.">
+<meta property="og:image" content="https://jarrunner.github.io/jr-icon-512.png">
+<style>
+  :root {
+    --plum: #4A2E5C; --plum-dark: #2A1836; --plum-soft: #F3EEF7; --ink: #1F1A24; --muted: #5E5666;
+    --line: #E4DDEA; --code-bg: #1E1426; --code-ink: #F1EAF6; --accent: #B58AD1;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; font: 17px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; color: var(--ink); background: #fff; }
+  a { color: var(--plum); }
+  a:hover { color: var(--plum-dark); }
+  code, pre { font-family: ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace; font-size: 0.88em; }
+  :not(pre) > code { background: var(--plum-soft); padding: 0.1em 0.35em; border-radius: 4px; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+
+  header.top { background: var(--plum-dark); }
+  header.top .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .brand { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; font-weight: 650; font-size: 19px; letter-spacing: 0.2px; }
+  .brand:hover { color: #fff; }
+  .brand img { width: 34px; height: 34px; }
+  nav.top a { color: #E6DAF0; text-decoration: none; margin-left: 22px; font-size: 15px; }
+  nav.top a:hover { color: #fff; text-decoration: underline; }
+
+  .hero { background: linear-gradient(180deg, var(--plum-dark) 0%, var(--plum) 100%); color: #fff; padding: 56px 0 64px; }
+  .hero .wrap { display: grid; grid-template-columns: 1fr; gap: 34px; }
+  .hero .intro { max-width: 760px; }
+  .hero .wrap > *, .ship > *, .grid > * { min-width: 0; }
+  .hero h1 { font-size: 42px; line-height: 1.15; margin: 0 0 18px; letter-spacing: -0.5px; }
+  .hero p.lead { font-size: 19px; color: #EDE3F4; margin: 0 0 26px; }
+  .btns { display: flex; flex-wrap: wrap; gap: 12px; }
+  .btn { display: inline-block; padding: 11px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px; }
+  .btn.solid { background: #fff; color: var(--plum-dark); }
+  .btn.solid:hover { background: var(--plum-soft); color: var(--plum-dark); }
+  .btn.outline { border: 1.5px solid #CDB7DD; color: #fff; }
+  .btn.outline:hover { background: rgba(255,255,255,0.08); color: #fff; }
+
+  .try { background: var(--code-bg); border-radius: 12px; padding: 18px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); }
+  .try h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin: 0 0 4px; }
+  .try h2 + pre { margin-top: 6px; }
+  .try pre { margin: 0 0 16px; color: var(--code-ink); white-space: pre; overflow-x: auto; line-height: 1.55; }
+  .try pre:last-child { margin-bottom: 0; }
+  .try .c { color: #9C8BAA; }
+
+  section { padding: 56px 0; }
+  section.alt { background: #FAF8FB; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  section h2 { font-size: 28px; margin: 0 0 8px; letter-spacing: -0.3px; }
+  section p.sub { color: var(--muted); margin: 0 0 28px; max-width: 720px; }
+
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  .card { border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; background: #fff; }
+  .card h3 { margin: 0 0 6px; font-size: 18px; }
+  .card p { margin: 0; color: var(--muted); font-size: 16px; }
+
+  .ship { display: grid; grid-template-columns: 1fr 1.1fr; gap: 36px; align-items: start; }
+  .ship ol { margin: 0; padding-left: 20px; }
+  .ship li { margin-bottom: 10px; }
+  pre.block { background: var(--code-bg); color: var(--code-ink); border-radius: 10px; padding: 16px 18px; overflow-x: auto; margin: 0; line-height: 1.5; }
+
+  .projects { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px 28px; }
+  .projects li { padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .projects a.name { font-weight: 650; text-decoration: none; }
+  .projects a.name:hover { text-decoration: underline; }
+  .projects span { display: block; color: var(--muted); font-size: 15.5px; }
+  h3.group { font-size: 15px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 34px 0 6px; }
+  h3.group:first-of-type { margin-top: 0; }
+
+  .downloads { margin: 14px 0 0; padding-left: 20px; }
+  .downloads li { margin-bottom: 6px; }
+
+  footer { background: var(--plum-dark); color: #CDBFD8; padding: 28px 0; font-size: 15px; }
+  footer a { color: #fff; }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 10px 28px; justify-content: space-between; }
+
+  @media (max-width: 860px) {
+    .ship { grid-template-columns: 1fr; gap: 30px; }
+    .hero h1 { font-size: 34px; }
+    .grid, .projects { grid-template-columns: 1fr; }
+    nav.top a { margin-left: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="jr-icon.svg" alt="">jarrunner</a>
+    <nav class="top">
+      <a href="https://github.com/jarrunner/jr/blob/main/docs/guide.md">Guide</a>
+      <a href="https://github.com/jarrunner/jr/releases">Releases</a>
+      <a href="https://github.com/jarrunner">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <div class="intro">
+      <h1>Run your Java app like a native program.</h1>
+      <p class="lead"><strong>jr</strong> is a small native launcher for Java apps on Windows and macOS. Your jar gets its own exe or Mac app with your name and icon. It finds Java, or downloads it, starts faster from the second run, and updates itself.</p>
+      <div class="btns">
+        <a class="btn solid" href="https://github.com/jarrunner/jr/blob/main/docs/guide.md">Get started</a>
+        <a class="btn outline" href="https://github.com/jarrunner/jr">jr on GitHub</a>
+      </div>
+    </div>
+    <div class="try">
+      <h2>Try it on Windows</h2>
+<pre>curl.exe -fLo jr.exe https://github.com/jarrunner/jr/releases/latest/download/jr.exe
+.\jr.exe myapp.jar</pre>
+      <h2>Try it on macOS</h2>
+<pre>curl -fsSL https://github.com/jarrunner/jr/releases/latest/download/install.sh | sh
+jr myapp.jar</pre>
+    </div>
+  </div>
+</div>
+
+<section>
+  <div class="wrap">
+    <h2>Why jr</h2>
+    <p class="sub">Your app stays an ordinary jar. jr makes running it feel like running any other program.</p>
+    <div class="grid">
+      <div class="card"><h3>Its own exe, its own name</h3><p>Your app gets an exe (or a macOS app) with its own icon and version. It can run the JVM inside that process, so Task Manager shows <code>myapp.exe</code>, not another <code>java.exe</code>.</p></div>
+      <div class="card"><h3>Java is taken care of</h3><p>jr uses an installed Java that fits your app. If there is none, it asks, then downloads Eclipse Temurin into the same cache jbang uses, checked against its SHA-256.</p></div>
+      <div class="card"><h3>Faster from the second run</h3><p>On Java 25 and newer, jr keeps an AOT cache for each jar and rebuilds it when the jar changes. Nothing to configure.</p></div>
+      <div class="card"><h3>Small, and nothing to install</h3><p>About 600 KB, with no runtime bundled and nothing for your users to install first. It picks the right console by itself: none when double-clicked, the terminal when run from one.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap ship">
+    <div>
+      <h2>Ship your own app</h2>
+      <p class="sub">Add jr-maven-plugin to your build. Every <code>mvn package</code>, on your machine or in CI, then builds the launcher.</p>
+      <ol>
+        <li>Your settings (Java version, JVM options) are checked while the build runs and baked into the exe.</li>
+        <li>A release exe can fetch its jar on first run and verify it.</li>
+        <li><code>myapp -Xjr:update</code> replaces the app with its next version, even while it runs.</li>
+        <li>The same build also makes a macOS binary or <code>.app</code>.</li>
+      </ol>
+      <p><a href="https://github.com/jarrunner/jr-maven-plugin/blob/main/docs/tutorial.md">Read the plugin tutorial</a></p>
+    </div>
+<pre class="block">&lt;plugin&gt;
+  &lt;groupId&gt;io.github.jarrunner&lt;/groupId&gt;
+  &lt;artifactId&gt;jr-maven-plugin&lt;/artifactId&gt;
+  &lt;version&gt;1.1.0&lt;/version&gt;
+  &lt;executions&gt;
+    &lt;execution&gt;
+      &lt;goals&gt;&lt;goal&gt;exe&lt;/goal&gt;&lt;/goals&gt;
+    &lt;/execution&gt;
+  &lt;/executions&gt;
+  &lt;configuration&gt;
+    &lt;icon&gt;${project.basedir}/app.ico&lt;/icon&gt;
+    &lt;javaVersion&gt;25+&lt;/javaVersion&gt;
+  &lt;/configuration&gt;
+&lt;/plugin&gt;
+
+<span class="c" style="color:#9C8BAA">mvn package     →  target/jr/myapp.exe</span></pre>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>The projects</h2>
+    <p class="sub">All open source, under the Apache License 2.0.</p>
+    <h3 class="group">For Java apps</h3>
+    <ul class="projects">
+      <li><a class="name" href="https://github.com/jarrunner/jr">jr</a><span>The launcher itself, for Windows (x64, ARM64) and macOS (Apple silicon, Intel).</span></li>
+      <li><a class="name" href="https://github.com/jarrunner/jr-maven-plugin">jr-maven-plugin</a><span>Builds your app's own exe and macOS app from <code>mvn package</code>.</span></li>
+      <li><a class="name" href="https://github.com/jarrunner/jr-apputils">jr-apputils</a><span>Gives your app its own <code>install</code> and <code>update</code> commands, with no installer.</span></li>
+      <li><a class="name" href="https://github.com/jarrunner/aot">aot</a><span>Trains a useful AOT cache on your whole app, not on <code>--help</code>.</span></li>
+    </ul>
+    <h3 class="group">How jr is built</h3>
+    <p class="sub">jr is written in Java and compiled to a native program through TeaVM's C backend. These are the tools that make that work.</p>
+    <ul class="projects">
+      <li><a class="name" href="https://github.com/jarrunner/teavm-c-maven-plugin">teavm-c-maven-plugin</a><span>Compiles TeaVM's generated C into native executables, per target.</span></li>
+      <li><a class="name" href="https://github.com/jarrunner/teavm-native-check">teavm-native-check</a><span>A javac plugin that turns the rules for native memory into compile errors.</span></li>
+      <li><a class="name" href="https://github.com/jarrunner/jextract/tree/teavm">jextract (teavm branch)</a><span>Generates TeaVM bindings from real C headers.</span></li>
+      <li><a class="name" href="https://github.com/jarrunner/teavm">teavm (fork)</a><span>TeaVM 0.16 with our C-backend fixes, one commit each.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <h2>An example you can download</h2>
+    <p class="sub">hello is a tiny app built with jr-maven-plugin. Its exe updates itself from this site: run <code>hello-windows-x86_64.exe -Xjr:update-check</code> on 1.0.0 and it finds 1.1.0.</p>
+    <ul class="downloads">
+      <li>1.1.0: <a href="hello/1.1.0/hello-windows-x86_64.exe">Windows x64 exe</a> · <a href="hello/1.1.0/hello-windows-arm64.exe">Windows ARM64 exe</a> · <a href="hello/1.1.0/hello-1.1.0.jar">jar</a></li>
+      <li>1.0.0: <a href="hello/1.0.0/hello-windows-x86_64.exe">Windows x64 exe</a> · <a href="hello/1.0.0/hello-windows-arm64.exe">Windows ARM64 exe</a> · <a href="hello/1.0.0/hello-1.0.0.jar">jar</a></li>
+      <li>The update file the exes read: <a href="hello/update.json">hello/update.json</a></li>
+    </ul>
+    <p>Its source is in <a href="https://github.com/jarrunner/jr-maven-plugin/tree/main/examples/hello">jr-maven-plugin/examples/hello</a>.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>jarrunner · Apache License 2.0 · No telemetry.</span>
+    <span><a href="https://github.com/jarrunner">github.com/jarrunner</a></span>
+  </div>
+</footer>
+
+</body>
+</html>
